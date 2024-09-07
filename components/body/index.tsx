@@ -1,13 +1,7 @@
-import { View } from "react-native";
-import { useTheme } from "react-native-paper";
+import Grid from "../grid";
 
 const Body = (props: any) => {
-  const theme = useTheme();
-  return (
-    <View style={{ backgroundColor: props.theme.colors.background }} {...props}>
-      {props.children}
-    </View>
-  );
+  return <Grid>{props.children}</Grid>;
 };
 
 export default Body;

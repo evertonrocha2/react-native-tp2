@@ -1,17 +1,25 @@
-import { Text } from "react-native-paper";
 import AppBar from "../appbar";
 import Menu from "./menu";
-import { router } from "expo-router";
+import { useNavigation } from "@react-navigation/native";
 import { useState } from "react";
 import { useSession } from "@/app/ctx";
+import { router } from "expo-router";
 
 const TopBar = (props: any) => {
   const [visible, setVisible] = useState(false);
   const { signOut } = useSession();
+  const navigation = useNavigation();
+
   return (
     <>
       <AppBar
-        onPress={() => setVisible(!visible)}
+        onPress={() => {
+          if (props.back) {
+            navigation.goBack();
+          } else {
+            setVisible(!visible);
+          }
+        }}
         back={props.back}
         title={props.title}
         icon={props.menu ? "dots-vertical" : ""}

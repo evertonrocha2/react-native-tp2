@@ -1,35 +1,33 @@
-import { useFonts } from "expo-font";
-import * as SplashScreen from "expo-splash-screen";
-import { useEffect } from "react";
 import "react-native-reanimated";
 
 import { Slot } from "expo-router";
-import { SessionProvider } from "./ctx";
+import { SessionProvider, useSession } from "./ctx";
 import { PaperProvider } from "react-native-paper";
 import { useColorScheme } from "react-native";
 import { darkTheme, lightTheme } from "@/constants/Theme";
-SplashScreen.preventAutoHideAsync();
+import { useStorageState } from "./useStorageState";
 
 export default function RootLayout() {
-  const theme = useColorScheme();
+  const themeType = useColorScheme();
+  const [[isLoading, theme], setTheme] = useStorageState("theme");
   console.log(theme);
 
-  const [loaded] = useFonts({
-    SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
-  });
-
-  useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
-    }
-  }, [loaded]);
-
-  if (!loaded) {
-    return null;
-  }
+  const themeJson = {
+    dark: darkTheme,
+    light: lightTheme,
+  };
+  console.log(theme);
 
   return (
-    <PaperProvider theme={theme === "dark" ? darkTheme : lightTheme}>
+    <PaperProvider
+      theme={
+        theme === "auto"
+          ? themeType === "dark"
+            ? themeJson["dark"]
+            : themeJson["light"]
+          : themeJson[theme]
+      }
+    >
       <SessionProvider>
         <Slot />
       </SessionProvider>
