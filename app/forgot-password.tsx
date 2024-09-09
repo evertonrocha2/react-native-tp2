@@ -39,6 +39,7 @@ const ForgotPassword = () => {
         Recupere sua senha
       </Text>
       <View
+        //@ts-ignore
         style={{
           ...styles.container,
           padding: styles.padding,

@@ -1,12 +1,13 @@
 import Grid from "@/components/grid";
 import TopBar from "@/components/navigation/topbar";
 import { useLocalSearchParams } from "expo-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as ImagePicker from "expo-image-picker";
 import { ScrollView } from "react-native";
 import { Button, Card, IconButton, Text, TextInput } from "react-native-paper";
 import Dialog from "@/components/dialog";
 import Snackbar from "@/components/snackbar";
+import Camera from "@/components/camera";
 
 export default function Form() {
   const params = useLocalSearchParams();
@@ -15,6 +16,15 @@ export default function Form() {
   const [loading, setLoading] = useState(false);
   const [dialogVisible, setDialogVisible] = useState(false);
   const [imageToDelete, setImageToDelete] = useState([]);
+  const [cameraVisible, setCameraVisible] = useState(false);
+  const cameraRef = useRef(null);
+
+  const onCapture = (photo: any) => {
+    const images = data.images;
+    //@ts-ignore
+    images.push(photo.uri);
+    updateImages(images);
+  };
 
   const [data, setData] = useState({
     id: null,
@@ -27,6 +37,7 @@ export default function Form() {
     // No permissions request is necessary for launching the image library
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsMultipleSelection: true,
       allowsEditing: true,
       aspect: [4, 3],
       quality: 1,
@@ -158,7 +169,9 @@ export default function Form() {
               icon="camera"
               style={{ borderRadius: 0 }}
               mode="contained"
-              onPress={() => {}}
+              onPress={() => {
+                setCameraVisible(true);
+              }}
             >
               Tirar Foto
             </Button>
@@ -213,6 +226,14 @@ export default function Form() {
             },
           ]}
         />
+        {cameraVisible ? (
+          <Camera
+          //@ts-ignore
+            onCapture={onCapture}
+            setCameraVisible={setCameraVisible}
+            ref={cameraRef}
+          />
+        ) : null}
         <Snackbar
           text={message}
           visible={message !== null}

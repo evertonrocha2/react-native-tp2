@@ -7,7 +7,7 @@ const Dashboard = () => {
   return (
     <>
       <TopBar title={"Dashboard"} />
-      <Fab icon="plus" onPress={() => router.push("/novo-item")} />
+      <Fab icon="plus" onPress={() => router.push("/form")} />
     </>
   );
 };
