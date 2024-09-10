@@ -6,6 +6,8 @@ import { PaperProvider } from "react-native-paper";
 import { useColorScheme } from "react-native";
 import { darkTheme, lightTheme } from "@/constants/Theme";
 import { useStorageState } from "./useStorageState";
+import { createTable } from "@/services/database";
+import { useEffect } from "react";
 
 export default function RootLayout() {
   const themeType = useColorScheme();
@@ -17,6 +19,10 @@ export default function RootLayout() {
     light: lightTheme,
   };
   console.log(theme);
+
+  useEffect(() => {
+    createTable("user");
+  });
 
   return (
     <PaperProvider

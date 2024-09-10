@@ -4,10 +4,12 @@ import { Avatar, Button, TextInput, useTheme } from "react-native-paper";
 import { Link, router } from "expo-router";
 import { useState } from "react";
 import Grid from "@/components/grid";
+import Snackbar from "@/components/snackbar";
 
 const Login = () => {
   const { signIn } = useSession();
   const [email, setEmail] = useState("");
+  const [message, setMessage] = useState<string | null>(null);
   const [password, setPassword] = useState("");
   console.log(email, password);
   const colors = useTheme();
@@ -65,8 +67,18 @@ const Login = () => {
         <Button
           mode="contained"
           onPress={() => {
-            signIn();
-            router.navigate("/(tabs)");
+            if (email.length > 0 && password.length > 0) {
+              try {
+                signIn(email, password);
+              } catch (e: any) {
+                if (e.toString().indexOf("(auth/invalid-credential)")) {
+                  setMessage("Dados de usuário inválidos");
+                }
+                console.log(e);
+              }
+            } else {
+              setMessage("Preencha os campos");
+            }
           }}
         >
           Login
@@ -92,6 +104,12 @@ const Login = () => {
           Esqueci minha senha
         </Link>
       </Grid>
+      <Snackbar
+        visible={message !== null}
+        onDismiss={() => setMessage(null)}
+        duration={5000}
+        text={message}
+      />
     </>
   );
 };
