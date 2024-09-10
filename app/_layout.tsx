@@ -6,7 +6,7 @@ import { PaperProvider } from "react-native-paper";
 import { useColorScheme } from "react-native";
 import { darkTheme, lightTheme } from "@/constants/Theme";
 import { useStorageState } from "./useStorageState";
-import { createTable } from "@/services/database";
+import { createTableUser } from "@/services/database";
 import { useEffect } from "react";
 
 export default function RootLayout() {
@@ -21,7 +21,7 @@ export default function RootLayout() {
   console.log(theme);
 
   useEffect(() => {
-    createTable("user");
+    createTableUser();
   });
 
   return (
@@ -30,7 +30,7 @@ export default function RootLayout() {
         theme === "auto"
           ? themeType === "dark"
             ? themeJson["dark"]
-            : themeJson["light"]
+            : themeJson["light"] //@ts-ignore
           : themeJson[theme]
       }
     >

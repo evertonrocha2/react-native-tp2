@@ -2,23 +2,44 @@ const cameraRef = useRef(null);
 import Fab from "@/components/fab";
 import Grid from "@/components/grid";
 import TopBar from "@/components/navigation/topbar";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Avatar, Button, TextInput } from "react-native-paper";
 import * as ImagePicker from "expo-image-picker";
 import Camera from "@/components/camera";
+import { select } from "@/services/database";
 
 const Profile = () => {
   const [cameraVisible, setCameraVisible] = useState(false);
   const cameraRef = useRef(null);
   const [loading, setLoading] = useState(false);
 
-  const [data, setData] = useState({
-    images: null,
+  useEffect(() => {
+    getUser();
+  }, []);
+
+  const [data, setData] = useState<UserInterface>({
+    //@ts-ignore
+    photoURL: null,
   });
+
+  const getUser = async () => {
+    //@ts-ignore
+    const d = await select("user", [
+      "uid",
+      "email",
+      "displayName",
+      "photoURL",
+      "phoneNumber",
+      "createdAt",
+      "emailVerified",
+    ]);
+    setData(d);
+  };
+
+  console.log(data);
 
   const pickImage = async () => {
     setLoading(true);
-    // No permissions request is necessary for launching the image library
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
       allowsMultipleSelection: false,
@@ -30,10 +51,10 @@ const Profile = () => {
     console.log(result);
     setTimeout(() => {
       if (!result.canceled) {
-        const images = data.images;
+        const photoURL = data.photoURL;
         //@ts-ignore
         if (!result.canceled) {
-          setData((v: any) => ({ ...v, images: result.assets[0] }));
+          setData((v: any) => ({ ...v, photoURL: result.assets[0] }));
         }
         setLoading(false);
       }
@@ -42,7 +63,7 @@ const Profile = () => {
 
   const onCapture = (photo: any) => {
     //@ts-ignore
-    setData((v: any) => ({ ...v, images: photo.uri }));
+    setData((v: any) => ({ ...v, photoURL: photo.uri }));
   };
 
   return (
@@ -53,8 +74,8 @@ const Profile = () => {
         </Grid>
         <Grid style={styles.containerImage}>
           <Grid>
-            {data.images ? (
-              <Avatar.Image source={data.images} size={230} />
+            {data.photoURL ? (
+              <Avatar.Image source={{ uri: data.photoURL }} size={230} />
             ) : (
               <Avatar.Icon icon="account" size={230} />
             )}
@@ -71,16 +92,13 @@ const Profile = () => {
           </Grid>
         </Grid>
         <Grid style={{ padding: 20 }}>
-          <TextInput label="Nome" />
+          <TextInput label="Nome" value={data.displayName} />
         </Grid>
         <Grid style={{ padding: 20 }}>
-          <TextInput label="Sobrenome" />
+          <TextInput label="Usuário" value={data.username} />
         </Grid>
         <Grid style={{ padding: 20 }}>
-          <TextInput label="Usuário" />
-        </Grid>
-        <Grid style={{ padding: 20 }}>
-          <TextInput label="Email" />
+          <TextInput label="Email" value={data.email} />
         </Grid>
         <Grid style={{ padding: 20 }}>
           <Button loading={loading} style={{ marginTop: 20 }} mode="contained">

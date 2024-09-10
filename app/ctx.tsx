@@ -3,7 +3,7 @@ import { setStorageItemAsync, useStorageState } from "./useStorageState";
 import { FirebaseApp, initializeApp } from "firebase/app";
 import { login } from "@/services/auth";
 import * as SQLite from "expo-sqlite";
-
+import {  createTableUser, dropTable } from "@/services/database";
 
 const firebaseConfig = {
   apiKey: process.env.EXPO_PUBLIC_API_KEY,
@@ -55,8 +55,10 @@ export function SessionProvider({ children }: PropsWithChildren) {
         signIn: (email: string, senha: string) => {
           return login(email, senha, setSession);
         },
-        signOut: () => {
+        signOut: async () => {
           setSession(null);
+          await dropTable("user");
+          await createTableUser();
         },
         changeTheme: async (theme: string) => {
           await setStorageItemAsync("theme", theme);
