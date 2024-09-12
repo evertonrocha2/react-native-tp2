@@ -8,30 +8,33 @@ import { Button, Card, IconButton, Text, TextInput } from "react-native-paper";
 import Dialog from "@/components/dialog";
 import Snackbar from "@/components/snackbar";
 import Camera from "@/components/camera";
+import { save, update } from "@/services/database";
+import { ItemImageInterface, ItemInterface } from "@/interfaces/Item";
 
 export default function Form() {
   const params = useLocalSearchParams();
   const [message, setMessage] = useState<string | null>(null);
-  const [image, setImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [messageText, setMessageText] = useState<string | null>(null);
   const [dialogVisible, setDialogVisible] = useState(false);
   const [imageToDelete, setImageToDelete] = useState([]);
   const [cameraVisible, setCameraVisible] = useState(false);
   const cameraRef = useRef(null);
-
-  const onCapture = (photo: any) => {
-    const images = data.images;
-    //@ts-ignore
-    images.push(photo.uri);
-    updateImages(images);
-  };
-
-  const [data, setData] = useState({
-    id: null,
+  const [data, setData] = useState<ItemInterface>({
+    uid: "",
     title: "",
     description: "",
     images: [],
   });
+  const onCapture = (photo: any) => {
+    const images = data.images;
+    //@ts-ignore
+    images.push(photo.uri);
+    //@ts-ignore
+
+    updateImages(images);
+  };
+
   const pickImage = async () => {
     setLoading(true);
     // No permissions request is necessary for launching the image library
@@ -50,6 +53,7 @@ export default function Form() {
         //@ts-ignore
         images.push(result.assets[0].uri);
         setData((v: any) => ({ ...v, images: images }));
+        //@ts-ignore
         updateImages(images);
         setLoading(false);
       }
@@ -64,13 +68,63 @@ export default function Form() {
     loadData();
   }, []);
 
+  const _update = async () => {
+    setLoading(true);
+
+    try {
+      let uid = data.uid;
+
+      if (uid) {
+        await update(
+          "item",
+          {
+            title: data.title,
+            description: data.description,
+          },
+          uid
+        );
+
+        // TODO: Dropar imagens e recriar ou fazer update
+        // data.images.map((image: string) => {
+        //     await update('item_image', {
+        //         image: data.description,
+        //     }, uid)
+        // })
+      } else {
+        uid = await insert("item", {
+          title: data.title,
+          description: data.description,
+        });
+        data.images.map((image: string) => {
+          await insert("item_image", {
+            image: data.description,
+            itemUid: uid,
+          });
+        });
+      }
+      setMessageText(
+        data.uid
+          ? "Dado atualizado com sucesso!!!"
+          : "Dado criado com sucesso!!!"
+      );
+    } catch (err) {
+      setMessageText(
+        data.uid
+          ? "Um erro ocorreu ao atualizar o dado."
+          : "Um erro ocorreu ao criar o dado."
+      );
+    }
+
+    setLoading(false);
+  };
+
   const loadData = async () => {
     //@ts-ignore
-    params.id = 1;
-    if (params.id) {
+    params.uid = 1;
+    if (params.uid) {
       setData((v: any) => ({
         ...v,
-        id: params.id,
+        id: params.uid,
         title: params.title,
         description: params.description,
         images: [],
@@ -89,7 +143,7 @@ export default function Form() {
             <Text
               style={{ fontSize: 30, letterSpacing: -2, textAlign: "center" }}
             >
-              {data.id ? "Cadastrar Item" : "Editar Item"}
+              {data.uid ? "Cadastrar Item" : "Editar Item"}
             </Text>
           </Grid>
 
@@ -228,7 +282,7 @@ export default function Form() {
         />
         {cameraVisible ? (
           <Camera
-          //@ts-ignore
+            //@ts-ignore
             onCapture={onCapture}
             setCameraVisible={setCameraVisible}
             ref={cameraRef}

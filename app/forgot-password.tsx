@@ -55,6 +55,7 @@ const ForgotPassword = () => {
       <Button
         mode="contained"
         onPress={() => {
+          //@ts-ignore
           signIn();
           router.navigate("/(tabs)");
         }}

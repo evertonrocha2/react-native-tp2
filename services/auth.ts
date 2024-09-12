@@ -6,6 +6,7 @@ import {
   signInWithEmailAndPassword,
   UserCredential,
 } from "firebase/auth";
+import { UserInterface } from "@/interfaces/User";
 
 const isLoggedIn = async () => {
   return true;
@@ -33,6 +34,7 @@ const login = async (email: string, password: string, setSession: any) => {
       username: user.username,
       displayName: user.displayName,
       emailVerified: user.emailVerified.toString(),
+      sync: 1
     };
 
     await save("user", _user);

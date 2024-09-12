@@ -1,4 +1,4 @@
-interface UserInterface {
+export interface UserInterface {
   email: string;
   uid: string;
   photoURL: string;
@@ -6,5 +6,6 @@ interface UserInterface {
   createdAt: string;
   displayName: string;
   emailVerified: string;
-  username: string;
+  username?: string;
+  sync: number;
 }
